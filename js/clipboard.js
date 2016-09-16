@@ -8,17 +8,33 @@ var config = {
 };
 firebase.initializeApp(config);
 
+var database = firebase.database();
+var dbref = database.ref('clipboard');
+var fromCopy = dbref.child('fromCopy');
+var toPaste = dbref.child('toPaste');
+
+// tinyMCE.get('cparea').setContent(data);
+// tinyMCE.get('cparea').getContent();
+fromCopy.on('value', function (snap) {
+  if (snap.val() !== tinyMCE.get('cparea').getContent()) {
+    tinyMCE.get('cparea').setContent(snap.val());
+  }
+});
+
 window.onload = function () {
   tinymce.init({
     selector: 'textarea#cparea',  // change this value according to your HTML
     menubar: false,
     setup: function (editor) {
-      editor.on('change', function (e) {
-        console.log('change event', e);
-      });
       editor.on('keyup', function (e) {
-        console.log(e);
-        console.log('Editor contents was modified. Contents: ' + editor.getContent());
+        // console.log('change event', e);
+        var jkl = e.currentTarget.innerHTML;
+        fromCopy.set(jkl);
+        // console.log('Editor contents was modified. Contents: ' + editor.getContent());
+        // editor.on('change', function (e) {
+        //   console.log('change event', e);
+        //   console.log('Editor contents was modified. Contents: ' + editor.getContent());
+        // });
         // check_submit(); //another function calling
       });
     }
